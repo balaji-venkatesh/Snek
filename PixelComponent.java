@@ -1,31 +1,54 @@
 import java.awt.Color;
 
-public abstract class PixelComponent implements Comparable<PixelComponent>{
+/**
+ * A class that returns a grid of color when asked nicely. It has an x, y, and z
+ * (level) coordinate. It is comparable with other PixelComponents based on its
+ * z-level for drawing purposes.
+ * 
+ * @see Comparable
+ */
+public class PixelComponent implements Comparable<PixelComponent> {
 
-    private int priority;
     private int x;
     private int y;
+    private int z;
 
-    public int compareTo(PixelComponent pc){
-        return this.priority - pc.priority;
+    public PixelComponent(int x, int y, int z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
     }
 
-    public int getX(){
+    public int compareTo(PixelComponent pc) {
+        return this.z - pc.z;
+    }
+
+    public int getX() {
         return x;
     }
 
-    public int getY(){
+    public int getY() {
         return y;
     }
 
-    public void setX(){
-        this.x=x;
+    public int getZ() {
+        return z;
     }
 
-    public void setY(){
-        this.y=y;
+    public void setX() {
+        this.x = x;
     }
 
-    public abstract Color[][] getPixels();
+    public void setY() {
+        this.y = y;
+    }
+
+    public void setZ(int z) {
+        this.z = z;
+    }
+
+    public Color[][] getPixels() {
+        return null;
+    }
 
 }

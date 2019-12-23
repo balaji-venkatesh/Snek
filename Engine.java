@@ -5,7 +5,7 @@ import java.util.PriorityQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-public class Engine extends JPanel {
+public class Engine extends JPanel implements Clockable {
 
     JFrame frame;
     Color[][] pixels;
@@ -59,7 +59,7 @@ public class Engine extends JPanel {
     }
 
     public void setPixel(int x, int y, Color c) {
-        if(0<=x && x<cols && 0<=y && y < rows) pixels[x][y] = c;
+        if(c!= null && 0<=x && x<cols && 0<=y && y < rows) pixels[x][y] = c;
     }
 
     public void delay(long time){
@@ -67,21 +67,22 @@ public class Engine extends JPanel {
         while(System.currentTimeMillis() - start < time);
     }
 
-    public void paintPixelComponents(){
+    public void act(){
         for(PixelComponent pc : pq){
+
             int x = pc.getX();
             int y = pc.getY();
             Color[][] pixels = pc.getPixels();
 
             for(int i = 0; i < pixels.length; i++){
                 for(int j = 0; j < pixels[0].length; j++){
-                    this.setPixel(i*2+x, j*2+y, pixels[i][j]);
-                    this.setPixel(i*2+x+1, j*2+y, pixels[i][j]);
-                    this.setPixel(i*2+x, j*2+y+1, pixels[i][j]);
-                    this.setPixel(i*2+x+1, j*2+y+1, pixels[i][j]);
+                    this.setPixel(i+x, j+y, pixels[i][j]);
                 }
             }
         }
+
+        this.repaint();
+
     }
 
     public boolean addPixelComponent(PixelComponent pc){

@@ -6,15 +6,27 @@ public class Main {
 
     public static void main(String[]args){
 
-        Engine engine = new Engine();
-        Grid grid = new Grid(40,40);
+        int num = 0;
 
-        grid.render(engine, (150-40*2)/2, 15);
+        Engine engine = new Engine("Snek");
+
+        Text score = new Text(2, 2, "Score: " + num, Color.white);
+
+        Clock clock = new Clock(1000);
+
+        clock.schedule(engine);
         
-        Text.draw(engine, 2, 2, "Score: 2546", Color.darkGray);
-
         engine.showWindow();
-        //engine.start();
+
+        engine.addPixelComponent(score);
+
+        clock.start();
+
+        while(true){
+            engine.delay(10);
+            num++;
+            score.setText("Score: " + num);
+        }
 
     }
 
