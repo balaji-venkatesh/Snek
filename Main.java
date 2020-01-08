@@ -4,7 +4,7 @@ public class Main {
 
     static long time;
 
-    public static void main(String[]args){
+    public static void main(String[] args) {
 
         Engine engine = new Engine("Snek");
 
@@ -13,15 +13,23 @@ public class Main {
         Box box = new Box(100, 5, 45, 90, Color.lightGray);
 
         Clock clock = new Clock(1000);
-        clock.schedule(engine);
-        
+        clock.schedule(() -> engine.update());
         engine.showWindow();
+
         engine.addPixelComponent(score);
         engine.addPixelComponent(grid);
         engine.addPixelComponent(box);
 
-        //engine.act();
+        // engine.act();
         clock.start(); // starts the game ticks
+
+        Keyboard.addAction("heya", () -> {
+            System.out.println("hello");
+        });
+
+        Keyboard.updateBinding(81, "heya");
+
+        System.out.println(Keyboard.bindingList());
 
     }
 

@@ -6,7 +6,7 @@ import java.util.Collections;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-public class Engine extends JPanel implements Clockable {
+public class Engine extends JPanel {
 
     JFrame frame;
     Color[][] pixels;
@@ -23,10 +23,7 @@ public class Engine extends JPanel implements Clockable {
         frame.setDefaultCloseOperation(frame.EXIT_ON_CLOSE);
         pixels = new Color[cols][rows];
         clear();
-    }
-
-    public Engine() {
-        this("Window");
+        frame.addKeyListener(new Keyboard());
     }
 
     public void showWindow() {
@@ -43,7 +40,8 @@ public class Engine extends JPanel implements Clockable {
         int hgap = (height - rows * side) / 2;
         int wgap = (width - cols * side) / 2;
 
-        g.setColor(Color.lightGray);
+        //g.setColor(new Color(112, 66, 20)); //sepia
+        g.setColor(Color.darkGray);
 
         g.fillRect(0, 0, width, height);
 
@@ -68,19 +66,13 @@ public class Engine extends JPanel implements Clockable {
             pixels[x][y] = c;
     }
 
-    public void delay(long time) {
-        long start = System.currentTimeMillis();
-        while (System.currentTimeMillis() - start < time)
-            ;
-    }
-
-    public void act() {
-
+    public void update() {
+        
         clear();
 
         for (PixelComponent pc : components) {
 
-            System.out.println(pc.getZ());
+            //System.out.println(pc.getZ());
 
             int x = pc.getX();
             int y = pc.getY();

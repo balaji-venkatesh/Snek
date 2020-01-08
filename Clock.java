@@ -1,38 +1,41 @@
 import java.util.HashSet;
 
-public class Clock extends Thread{
+public class Clock extends Thread {
 
-    HashSet<Clockable> set = new HashSet<Clockable>();
+    HashSet<Action> set = new HashSet<Action>();
 
-    long delay;
-    boolean running;
-    
-    public Clock(long delay){
-        this.delay = delay;
-    }
+    private long delay;
+    private boolean running;
 
-    public boolean schedule(Clockable c){
-        return set.add(c);
-    }
-
-    public boolean deSchedule(Clockable c){
-        return set.remove(c);
-    }
-
-    public void run(){
-        running = true;
-        while(running){
-            try{
-                Thread.sleep(delay);
-            }
-            catch(InterruptedException e){
-
-            }
-            for(Clockable c : set) c.act();
+    public static void delay(long time) {
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
         }
     }
 
-    public void pause(){
+    public Clock(long delay) {
+        this.delay = delay;
+    }
+
+    public boolean schedule(Action c) {
+        return set.add(c);
+    }
+
+    public boolean deSchedule(Action c) {
+        return set.remove(c);
+    }
+
+    public void run() {
+        running = true;
+        while (running) {
+            for (Action c : set)
+                c.act();
+            delay(delay);
+        }
+    }
+
+    public void pause() {
         running = false;
     }
 

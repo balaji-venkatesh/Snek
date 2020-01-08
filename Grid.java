@@ -5,7 +5,11 @@ public class Grid extends PixelComponent {
     int[][] grid;
     int length;
     int width;
-    Color color[] = new Color[] { Color.white, Color.red };
+    Color color[] = new Color[] {
+        Color.white, // floor
+        Color.DARK_GRAY, // wall
+        Color.red // apple
+    };
 
     public Grid(int x, int y, int width, int length) {
         this(x, y, 0, width, length);
