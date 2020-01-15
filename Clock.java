@@ -1,8 +1,8 @@
-import java.util.HashSet;
+import java.util.PriorityQueue;
 
 public class Clock extends Thread {
 
-    HashSet<Action> set = new HashSet<Action>();
+    PriorityQueue<Action> set = new PriorityQueue<Action>();
 
     private long delay;
     private boolean running;
@@ -29,8 +29,10 @@ public class Clock extends Thread {
     public void run() {
         running = true;
         while (running) {
-            for (Action c : set)
-                c.act();
+            System.out.println("tick");
+            PriorityQueue<Action> temp = new PriorityQueue<Action>(set);
+            for (int i = 0; i < set.size(); i++)
+                temp.poll().act();
             delay(delay);
         }
     }

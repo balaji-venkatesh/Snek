@@ -25,7 +25,7 @@ public class Keyboard implements KeyListener {
     }
 
     public static void getBindingFromKeyBoard(String name) {
-
+        
     }
 
     public static String bindingList() {

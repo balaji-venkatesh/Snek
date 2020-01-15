@@ -1,0 +1,26 @@
+Visual Grid
+0
+Player 1 Up
+38
+Player 1 Right
+39
+Player 1 Down
+40
+Player 1 Left
+37
+Player 2 Up
+87
+Player 2 Right
+68
+Player 2 Down
+83
+Player 2 Left
+65
+Snake Size
+3
+Grid Width
+45
+Grid Length
+45
+Tick Delay
+100 

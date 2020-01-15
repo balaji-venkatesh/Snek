@@ -49,7 +49,7 @@ public class Engine extends JPanel {
             for (int y = 0; y < rows; y++) {
                 // System.out.println(x + " " + y + pixels[x][y]);
                 g.setColor(pixels[x][y]);
-                g.fillRect(x * side + wgap, y * side + hgap, side-1, side-1);
+                g.fillRect(x * side + wgap, y * side + hgap, side, side);
             }
         }
 

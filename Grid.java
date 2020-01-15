@@ -7,8 +7,13 @@ public class Grid extends PixelComponent {
     int width;
     Color color[] = new Color[] {
         Color.white, // floor
-        Color.DARK_GRAY, // wall
-        Color.red // apple
+        Color.red, // apple
+        Color.black, // wall
+        Color.magenta, // enermy snakes
+        Color.pink, // less dangerous enemy snakes
+        Color.green, // player snakes from here on
+        Color.blue,
+        Color.cyan
     };
 
     public Grid(int x, int y, int width, int length) {
@@ -22,14 +27,23 @@ public class Grid extends PixelComponent {
         grid = new int[width][length];
 
         for (int i = 0; i < length; i++) {
-            grid[0][i] = 1;
-            grid[width - 1][i] = 1;
+            grid[0][i] = 2;
+            grid[width - 1][i] = 2;
         }
 
         for (int i = 0; i < width; i++) {
-            grid[i][0] = 1;
-            grid[i][length - 1] = 1;
+            grid[i][0] = 2;
+            grid[i][length - 1] = 2;
         }
+
+        grid[5][5] = 1;
+
+        grid[10][10] = 3;
+        grid[11][10] = 3;
+        grid[12][10] = 3;
+        grid[13][10] = 3;
+        grid[14][10] = 3;
+        grid[15][10] = 3;
     }
 
     public Color[][] getPixels() {
@@ -48,5 +62,9 @@ public class Grid extends PixelComponent {
     public void setCell(int x, int y, int code) {
         if (x >= 0 && x < width && y >= 0 && y < length)
             grid[x][y] = code;
+    }
+
+    public int getCell(int x, int y){
+        return grid[x][y];
     }
 }
