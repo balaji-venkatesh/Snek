@@ -5,16 +5,15 @@ public class Grid extends PixelComponent {
     int[][] grid;
     int length;
     int width;
-    Color color[] = new Color[] {
-        Color.white, // floor
-        Color.red, // apple
-        Color.black, // wall
-        Color.magenta, // enermy snakes
-        Color.pink, // less dangerous enemy snakes
-        Color.green, // player snakes from here on
-        Color.blue,
-        Color.cyan
-    };
+    Color color[] = new Color[] { Color.white, // floor
+            Color.red, // apple
+            Color.black, // wall
+            Color.magenta, // enermy snakes
+            Color.pink, // less dangerous enemy snakes
+            Color.green, // player snakes from here on
+            Color.blue, 
+            Color.cyan,
+            Color.lightGray};
 
     public Grid(int x, int y, int width, int length) {
         this(x, y, 0, width, length);
@@ -36,14 +35,6 @@ public class Grid extends PixelComponent {
             grid[i][length - 1] = 2;
         }
 
-        grid[5][5] = 1;
-
-        grid[10][10] = 3;
-        grid[11][10] = 3;
-        grid[12][10] = 3;
-        grid[13][10] = 3;
-        grid[14][10] = 3;
-        grid[15][10] = 3;
     }
 
     public Color[][] getPixels() {
@@ -64,7 +55,22 @@ public class Grid extends PixelComponent {
             grid[x][y] = code;
     }
 
-    public int getCell(int x, int y){
+    public int getCell(int x, int y) {
         return grid[x][y];
     }
+
+    public void addApple() {
+
+        int x = 0;
+        int y = 0;
+
+        while (grid[x][y] != 0) {
+            x = (int) (Math.random() * grid.length);
+            y = (int) (Math.random() * grid[0].length);
+        }
+
+        grid[x][y] = 1;
+
+    }
+
 }

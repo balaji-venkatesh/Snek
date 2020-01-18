@@ -6,73 +6,52 @@ import java.util.Collections;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-public class Engine extends JPanel {
+public class Engine {
 
-    JFrame frame;
-    Color[][] pixels;
+    private static JFrame frame;
+    private static Window window = new Window();
 
-    int rows = 100;
-    int cols = 150;
+    protected static Color[][] pixels;
+    protected static int rows = 30;
+    protected static int cols = 30;
 
-    private ArrayList<PixelComponent> components = new ArrayList<PixelComponent>();
+    private static ArrayList<PixelComponent> components = new ArrayList<PixelComponent>();
 
-    public Engine(String name) {
+    public static void showWindow(String name) {
         frame = new JFrame(name);
-        frame.add(this);
+        frame.add(window);
         frame.setSize(800, 700);
-        frame.setDefaultCloseOperation(frame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pixels = new Color[cols][rows];
         clear();
         frame.addKeyListener(new Keyboard());
-    }
-
-    public void showWindow() {
         frame.show();
     }
 
-    public void paint(Graphics g) {
-
-        int height = this.getHeight();
-        int width = this.getWidth();
-
-        int side = Math.min((height - 10) / rows, (width - 10) / cols);
-
-        int hgap = (height - rows * side) / 2;
-        int wgap = (width - cols * side) / 2;
-
-        //g.setColor(new Color(112, 66, 20)); //sepia
-        g.setColor(Color.darkGray);
-
-        g.fillRect(0, 0, width, height);
-
-        for (int x = 0; x < cols; x++) {
-            for (int y = 0; y < rows; y++) {
-                // System.out.println(x + " " + y + pixels[x][y]);
-                g.setColor(pixels[x][y]);
-                g.fillRect(x * side + wgap, y * side + hgap, side, side);
-            }
-        }
-
-    }
-
-    public void clear(){
+    public static void clear() {
         for (int i = 0; i < cols; i++)
             for (int j = 0; j < rows; j++)
                 pixels[i][j] = Color.gray;
     }
 
-    public void setPixel(int x, int y, Color c) {
+    public static void setPixel(int x, int y, Color c) {
         if (c != null && 0 <= x && x < cols && 0 <= y && y < rows)
             pixels[x][y] = c;
     }
 
-    public void update() {
-        
+    public static void setSize(int nRows, int nCols) {
+        rows = nRows;
+        cols = nCols;
+        pixels = new Color[cols][rows];
+    }
+
+    public static void update() {
+
         clear();
 
         for (PixelComponent pc : components) {
 
-            //System.out.println(pc.getZ());
+            // System.out.println(pc.getZ());
 
             int x = pc.getX();
             int y = pc.getY();
@@ -80,23 +59,53 @@ public class Engine extends JPanel {
 
             for (int i = 0; i < pcp.length; i++) {
                 for (int j = 0; j < pcp[0].length; j++) {
-                    this.setPixel(i + x, j + y, pcp[i][j]);
+                    setPixel(i + x, j + y, pcp[i][j]);
                 }
             }
         }
 
-        this.repaint();
+        window.repaint();
 
     }
 
-    public boolean addPixelComponent(PixelComponent pc) {
+    public static boolean addPixelComponent(PixelComponent pc) {
         boolean added = components.add(pc);
         Collections.sort(components);
         return added;
     }
 
-    public boolean removePixelComponent(PixelComponent pc) {
+    public static boolean removePixelComponent(PixelComponent pc) {
         return components.remove(pc);
+    }
+
+}
+
+class Window extends JPanel {
+
+    public void paint(Graphics g) {
+
+        int height = this.getHeight();
+        int width = this.getWidth();
+
+        int side = Math.min((height - 10) / Engine.rows, (width - 10) / Engine.cols);
+
+        int hgap = (height - Engine.rows * side) / 2;
+        int wgap = (width - Engine.cols * side) / 2;
+
+        // g.setColor(new Color(112, 66, 20)); //sepia
+        g.setColor(Color.darkGray);
+
+        g.fillRect(0, 0, width, height);
+
+        for (int x = 0; x < Engine.cols; x++) {
+            for (int y = 0; y < Engine.rows; y++) {
+                // System.out.println(x + " " + y + pixels[x][y]);
+                g.setColor(Engine.pixels[x][y]);
+                g.fillRect(x * side + wgap, y * side + hgap, side - Settings.getSetting("Visual Grid"),
+                        side - Settings.getSetting("Visual Grid"));
+            }
+        }
+
     }
 
 }
