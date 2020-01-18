@@ -8,20 +8,28 @@ public class Main {
         Engine.showWindow("Snek"); // shows window
 
         showMenu(); // start main menu
-
     }
 
     public static void showMenu() {
 
         Engine.setSize(30, 91);
 
-        Text snek = new Text(15, 5, "Snek", Color.white);
-        Text key = new Text(1, 23, "Press any key to start.", Color.darkGray);
+        Logo snek = new Logo(12, 2, 30);
+        Text key = new Text(1, 22, "Press any key to start.", Color.darkGray);
 
         Engine.addPixelComponent(snek);
         Engine.addPixelComponent(key);
 
         Engine.update();
+
+        Keyboard.waitForAnyKey();
+
+        Engine.removePixelComponent(snek);
+        Engine.removePixelComponent(key);
+
+        Clock.delay(10);
+
+        Game.start();
 
     }
 

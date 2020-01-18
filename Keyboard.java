@@ -10,8 +10,10 @@ public class Keyboard implements KeyListener {
     private static HashMap<Integer, String> bindings = new HashMap<Integer, String>();
     private static HashMap<String, Action> actions = new HashMap<String, Action>();
 
+    private static int lastPressed = 0;
+
     public static void addAction(String name, Action a) {
-        actions.putIfAbsent(name, a);
+        actions.put(name, a);
     }
 
     public static void removeAction(String name) {
@@ -22,10 +24,6 @@ public class Keyboard implements KeyListener {
     public static void updateBinding(Integer keyCode, String name) {
         bindings.values().removeIf(value -> value.equals(name));
         bindings.put(keyCode, name);
-    }
-
-    public static void getBindingFromKeyBoard(String name) {
-        
     }
 
     public static String bindingList() {
@@ -41,6 +39,7 @@ public class Keyboard implements KeyListener {
     }
 
     public void keyPressed(KeyEvent e) {
+        lastPressed = e.getKeyCode();
         String name = bindings.getOrDefault(e.getKeyCode(), "");
         if (!name.equals(""))
             actions.get(name).act();
@@ -61,6 +60,12 @@ public class Keyboard implements KeyListener {
             }
         }
         return null;
+    }
+
+    public static int waitForAnyKey(){
+        lastPressed = 0;
+        while(lastPressed == 0) Clock.delay(1);
+        return lastPressed;
     }
 
 }

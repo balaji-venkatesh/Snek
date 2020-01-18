@@ -5,53 +5,42 @@ public class Snek {
     ArrayList<Integer> snekX = new ArrayList<Integer>(); // coordinates
     ArrayList<Integer> snekY = new ArrayList<Integer>();
 
-    private int prevDirection;
+    private int prevDirection; // used to prevent 180 degrees
     private int direction; // 1 is up, 2 is right, 3 is down, 4 is left
-    private int colour;
 
-    private static int numPlayerSneks;
-    public static int numEnermeyoSneks;
+    private int colour; // based on the color array defined in grid
 
-    private boolean isPlayer;
+    private boolean isPlayer; // is this snek a playerSnek?
 
-    private int currentSize;
+    private int currentSize; // adaptive sizing
     private int size;
 
-    public Snek(int x, int y, int dir, boolean isP, int s) {
+    public Snek(int x, int y, int direction, boolean isPlayer, int size, int colour) {
 
+        // set variables
+        this.prevDirection = direction;
+        this.direction = direction;
+        this.isPlayer = isPlayer;
+        this.size = size;
+        this.colour = colour;
+
+        // set first block
         snekX.add(x);
         snekY.add(y);
-
-        prevDirection = dir;
-        direction = dir;
-        isPlayer = isP;
-        currentSize = 1;
-        size = s;
-
-        if (isP) {
-            numPlayerSneks++;
-            colour = numPlayerSneks + 4;
-        } else {
-            numEnermeyoSneks++;
-            colour = 3;
-        }
-
         Game.grid.setCell(x, y, colour);
+        currentSize = 1;
 
+        // add actions, always calculate tail before head
         Game.clock.schedule(new Action(-10) {
             public void act() {
                 updateTail();
             }
         });
-
         Game.clock.schedule(new Action(10) {
             public void act() {
                 updateHead();
             }
         });
-
-        if (isPlayer)
-            bindToKeyboard();
 
     }
 
@@ -67,128 +56,88 @@ public class Snek {
     public void updateHead() {
         prevDirection = direction; // used to prevent turning backward
         if (!isPlayer) {
-            if (Math.random() < (double) Settings.getSetting("Snek Turn Chance") / 100) // small chance of changing direction
-                changeDirection((int) (Math.random() * 3) + 1);
+            if (Math.random() < (double) Settings.getSetting("Snek Turn Chance") / 100)
+                changeDirection((int) (Math.random() * 3) + 1); // enermeyo can randomy change direction
         }
-        if (size >= currentSize) { // if head needs to move forward, add new block in front
+        if (size >= currentSize && currentSize > 0) { // if head needs to move forward, add new block in front
             add(snekX.get(0), snekY.get(0));
         } else
             currentSize--; // otherwise, don't move head forward and it will shrink
     }
 
     public boolean checkCollision(int x, int y) {
-        if (Game.grid.getCell(x, y) > 1) {
-            return false; // ded
-        } else if (Game.grid.getCell(x, y) == 1) {
-            // System.out.println("apple");
+        if (Game.grid.getCell(x, y) > 1) // collision has occured
+            return false;
+        else if (Game.grid.getCell(x, y) == 1) { // got an apple!
             size++;
-            Game.grid.addApple();
-            if (isPlayer){
-                Game.score++;
-                Game.bgScore++;
-            }
-            else if (Settings.getSetting("Difficulty") == 1 ){
-                Game.bgScore++;
-            }
-
+            Game.grid.addApple(); // request new apple
+            if (isPlayer)
+                Game.scorePoint(); // get a point if a player
+            else if (Settings.getSetting("Difficulty") == 1)
+                Game.bgScorePoint();
+            /*
+             * if enermeyoSneks can get their own points, as per the difficulty setting,
+             * then increase the background score count
+             */
         }
         return true; // everything ok
     }
 
     public void add(int x, int y) {
-        add(x, y, 0);
+        add(x, y, 0); // start recursive method (recursion is used for collision avoidance)
     }
 
     public void add(int x, int y, int counter) {
-        if (direction == 1) { // if facing up
-            if (checkCollision(x, y - 1)) {
-                snekX.add(0, x);
-                snekY.add(0, y - 1);
-            } else {
-                dealWithCollision(x, y, counter);
-            }
-        } else if (direction == 2) { // if facing right
-            if (checkCollision(x + 1, y)) {
-                snekX.add(0, x + 1);
-                snekY.add(0, y);
-            } else {
-                dealWithCollision(x, y, counter);
-            }
-        } else if (direction == 3) { // if facing down
-            if (checkCollision(x, y + 1)) {
-                snekX.add(0, x);
-                snekY.add(0, y + 1);
-            } else {
-                dealWithCollision(x, y, counter);
-            }
-        } else { // if facing left
-            if (checkCollision(x - 1, y)) {
-                snekX.add(0, x - 1);
-                snekY.add(0, y);
-            } else {
-                dealWithCollision(x, y, counter);
-            }
+        if (direction == 1 && checkCollision(x, y - 1)) { // if facing up
+            snekX.add(0, x);
+            snekY.add(0, y - 1);
         }
-        Game.grid.setCell(snekX.get(0), snekY.get(0), colour);
+        else if (direction == 2 && checkCollision(x + 1, y)) { // if facing right
+            snekX.add(0, x + 1);
+            snekY.add(0, y);
+        }
+        else if (direction == 3 && checkCollision(x, y + 1)) { // if facing down
+            snekX.add(0, x);
+            snekY.add(0, y + 1);
+        }
+        else if (direction == 4 && checkCollision(x - 1, y)) { // if facing left
+            snekX.add(0, x - 1);
+            snekY.add(0, y);
+        }
+        else
+            dealWithCollision(x, y, counter);
+        if (size > 0)
+            Game.grid.setCell(snekX.get(0), snekY.get(0), colour);
     }
 
     public void dealWithCollision(int x, int y, int counter) {
-        if (!isPlayer && counter < 100) {
+        if (!isPlayer && counter < 100) { // collision avoidance AI
             changeDirection((int) (Math.random() * 4) + 1);
             add(x, y, counter + 1);
-        } else {
-            dedify();
-        }
+        } else
+            dedify(); // kill the snek
     }
 
     public void dedify() {
-        size = 0;
+        size = 0; // set intended size to 0
         currentSize--;
-        for (int i = 0; i < snekX.size(); i++) {
-            Game.grid.setCell(snekX.get(i), snekY.get(i), 8);
-        }
+        for (int i = 0; i < snekX.size(); i++) // set all blocks to gray
+            Game.grid.setCell(snekX.get(i), snekY.get(i), 6);
         if (isPlayer)
-            numPlayerSneks--;
-        else
-            numEnermeyoSneks--;
-    }
-
-    public void bindToKeyboard() {
-
-        Keyboard.addAction("up" + numPlayerSneks, new Action(0) {
-            public void act() {
-                changeDirection(1);
-            } // turn up
-        });
-
-        Keyboard.addAction("right" + numPlayerSneks, new Action(0) {
-            public void act() {
-                changeDirection(2);
-            } // turn right
-        });
-
-        Keyboard.addAction("down" + numPlayerSneks, new Action(0) {
-            public void act() {
-                changeDirection(3);
-            } // turn down
-        });
-
-        Keyboard.addAction("left" + numPlayerSneks, new Action(0) {
-            public void act() {
-                changeDirection(4);
-            } // turn left
-        });
-
-        Keyboard.updateBinding(Settings.getSetting("Player " + numPlayerSneks + " Left"), "left" + numPlayerSneks);
-        Keyboard.updateBinding(Settings.getSetting("Player " + numPlayerSneks + " Up"), "up" + numPlayerSneks);
-        Keyboard.updateBinding(Settings.getSetting("Player " + numPlayerSneks + " Right"), "right" + numPlayerSneks);
-        Keyboard.updateBinding(Settings.getSetting("Player " + numPlayerSneks + " Down"), "down" + numPlayerSneks);
-
+            Game.end();
     }
 
     public void changeDirection(int direction) {
-        if ((prevDirection - direction) % 2 != 0)
+        if ((prevDirection - direction) % 2 != 0) // prevent turning backward
             this.direction = direction;
+    }
+
+    public boolean isDead(){
+        return size <= 0;
+    }
+
+    public boolean gone(){
+        return currentSize <=0;
     }
 
 }

@@ -9,10 +9,8 @@ public class Grid extends PixelComponent {
             Color.red, // apple
             Color.black, // wall
             Color.magenta, // enermy snakes
-            Color.pink, // less dangerous enemy snakes
             Color.green, // player snakes from here on
             Color.blue, 
-            Color.cyan,
             Color.lightGray};
 
     public Grid(int x, int y, int width, int length) {

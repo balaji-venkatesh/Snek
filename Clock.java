@@ -29,7 +29,6 @@ public class Clock extends Thread {
     public void run() {
         running = true;
         while (running) {
-            // System.out.println("tick");
             PriorityQueue<Action> temp = new PriorityQueue<Action>(set);
             for (int i = 0; i < set.size(); i++) {
                 Action a = temp.poll();

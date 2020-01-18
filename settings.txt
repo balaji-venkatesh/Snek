@@ -29,8 +29,10 @@ Grid Length
 Tick Delay
 100
 Num of Apples
-20
+50
 Snek Turn Chance
 30
 Difficulty
-0
+1
+Number of Players
+1

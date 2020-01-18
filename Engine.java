@@ -50,9 +50,7 @@ public class Engine {
         clear();
 
         for (PixelComponent pc : components) {
-
-            // System.out.println(pc.getZ());
-
+            
             int x = pc.getX();
             int y = pc.getY();
             Color[][] pcp = pc.getPixels();
