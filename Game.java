@@ -6,10 +6,10 @@ public class Game {
     public static Grid grid;
     public static Clock clock;
 
-    protected static int score = 0;
-    private static int bgScore = 0;
+    protected static int score;
+    private static int bgScore;
 
-    private static int numEnermeyoSneks = 0;
+    private static int numEnermeyoSneks;
 
     private static ArrayList<Snek> enermeyoSneks = new ArrayList<Snek>();
 
@@ -23,13 +23,17 @@ public class Game {
 
     public static void start() {
 
+        score = 0;
+        bgScore = 0;
+        numEnermeyoSneks = 0;
+
         Engine.setSize(Settings.getSetting("Grid Length") * 2 + 10, Settings.getSetting("Grid Width") * 2 + 90);
 
         grid = new Grid(5, 5, Settings.getSetting("Grid Width"), Settings.getSetting("Grid Length"));
 
         clock = new Clock(Settings.getSetting("Tick Delay"));
 
-        scoreText = new Text(Settings.getSetting("Grid Width") * 2 + 15, 8, 10, "Score: 0", Color.black);
+        scoreText = new Text(Settings.getSetting("Grid Width") * 2 + 15, 8, 10, "Score: " + score, Color.black);
 
         clock.schedule(new Action(100) {
             void act() {
@@ -44,7 +48,7 @@ public class Game {
                     }
 
                     enermeyoSneks.add(
-                            new Snek(x, y, (int) (Math.random() * 3) + 1, false, Settings.getSetting("Snek Size"), 3));
+                            new Snek(x, y, (int) (Math.random() * 4) + 1, false, Settings.getSetting("Snek Size"), 3));
                     bgScore -= 5;
                     numEnermeyoSneks++;
                 }
@@ -54,7 +58,8 @@ public class Game {
 
         Engine.addPixelComponent(scoreText);
 
-        enermyText = new Text(Settings.getSetting("Grid Width") * 2 + 15, 16, 10, "Enermeyo: 0", Color.black);
+        enermyText = new Text(Settings.getSetting("Grid Width") * 2 + 15, 16, 10, "Enermeyo: " + numEnermeyoSneks,
+                Color.black);
 
         clock.schedule(new Action(100) {
             void act() {
@@ -64,11 +69,28 @@ public class Game {
 
         Engine.addPixelComponent(enermyText);
 
-        box = new Box(Settings.getSetting("Grid Width") * 2 + 10, 5, 75, 90, Color.lightGray);
+        box = new Box(Settings.getSetting("Grid Width") * 2 + 10, 5, 75, Engine.rows - 10, Color.lightGray);
 
         Engine.addPixelComponent(box);
 
         Engine.addPixelComponent(grid);
+
+        player1Snek = new Snek(Settings.getSetting("Grid Width") * 2 / 3, Settings.getSetting("Grid Length") * 2 / 3,
+                Settings.getSetting("P1 Starting Direction"), true, Settings.getSetting("Snek Size"), 4);
+        bindToKeyboard(player1Snek, 1);
+
+        if (Settings.getSetting("Number of Players") == 2) {
+            player2Snek = new Snek(Settings.getSetting("Grid Width") / 3, Settings.getSetting("Grid Length") / 3,
+                    Settings.getSetting("P2 Starting Direction"), true, Settings.getSetting("Snek Size"), 5);
+            bindToKeyboard(player2Snek, 2);
+        }
+
+        int numApples = (int) ((double) Settings.getSetting("Permille of Apples") / 1000
+                * Settings.getSetting("Grid Width") * Settings.getSetting("Grid Length"));
+
+        for (int i = 0; i < numApples; i++) {
+            grid.addApple();
+        }
 
         clock.schedule(new Action(10000) {
             void act() {
@@ -76,20 +98,9 @@ public class Game {
             }
         });
 
-        player1Snek = new Snek(Settings.getSetting("Grid Width") * 2 / 3, Settings.getSetting("Grid Length") * 2 / 3,
-                Settings.getSetting("Player 1 Starting Direction"), true, Settings.getSetting("Snek Size"), 4);
-        bindToKeyboard(player1Snek, 1);
+        Engine.update();
 
-        if (Settings.getSetting("Number of Players") == 2) {
-            player2Snek = new Snek(Settings.getSetting("Grid Width") / 3, Settings.getSetting("Grid Length") / 3,
-                    Settings.getSetting("Player 2 Starting Direction"), true, Settings.getSetting("Snek Size"), 5);
-            bindToKeyboard(player2Snek, 2);
-        }
-
-        for (int i = 0; i < Settings.getSetting("Num of Apples"); i++)
-            grid.addApple();
-
-        clock.start(); // starts the game ticks
+        clock.start();
 
     }
 
@@ -128,25 +139,28 @@ public class Game {
             } // turn left
         });
 
-        Keyboard.updateBinding(Settings.getSetting("Player " + playerNum + " Left"), "left" + playerNum);
-        Keyboard.updateBinding(Settings.getSetting("Player " + playerNum + " Up"), "up" + playerNum);
-        Keyboard.updateBinding(Settings.getSetting("Player " + playerNum + " Right"), "right" + playerNum);
-        Keyboard.updateBinding(Settings.getSetting("Player " + playerNum + " Down"), "down" + playerNum);
+        Keyboard.updateBinding(Keyboard.getGameBinding("Player " + playerNum + " Left"), "left" + playerNum);
+        Keyboard.updateBinding(Keyboard.getGameBinding("Player " + playerNum + " Up"), "up" + playerNum);
+        Keyboard.updateBinding(Keyboard.getGameBinding("Player " + playerNum + " Right"), "right" + playerNum);
+        Keyboard.updateBinding(Keyboard.getGameBinding("Player " + playerNum + " Down"), "down" + playerNum);
 
     }
 
     public static void end() {
+
+        clock.setSpeed(30);
+
+        if (player1Snek.isDead() && (player2Snek != null && player2Snek.isDead()))
+            clock.schedule(new ShowEnd());
 
         if (!player1Snek.isDead())
             player1Snek.dedify();
         if (player2Snek != null && !player2Snek.isDead())
             player2Snek.dedify();
 
-        for (Snek s : enermeyoSneks) {
-            s.dedify();
-        }
-
-        clock.schedule(new ShowEnd());
+        /*
+         * for (Snek s : enermeyoSneks) { s.dedify(); }
+         */
 
     }
 
@@ -160,15 +174,12 @@ class ShowEnd extends Action {
     }
 
     void act() {
-        if (Game.player1Snek.gone() && Game.player2Snek.gone()) {
+        if (Game.player1Snek.gone() && (Game.player2Snek == null || Game.player2Snek.gone())) {
             Game.clock.pause(); // stop the clock
-            Clock.delay(100);
+            Clock.delay(1000);
 
             // remove everything
-            Engine.removePixelComponent(Game.grid);
-            Engine.removePixelComponent(Game.scoreText);
-            Engine.removePixelComponent(Game.enermyText);
-            Engine.removePixelComponent(Game.box);
+            Engine.removeAllPixelComponents();
 
             Engine.setSize(34, 80);
 
@@ -186,12 +197,9 @@ class ShowEnd extends Action {
 
             Keyboard.waitForAnyKey();
 
-            Engine.removePixelComponent(doneText);
-            Engine.removePixelComponent(newScoreText);
-            Engine.removePixelComponent(continueText);
-            Engine.removePixelComponent(continueText2);
+            Engine.removeAllPixelComponents();
 
-            Main.showMenu();
+            Main.settingsScreen();
 
         }
     }

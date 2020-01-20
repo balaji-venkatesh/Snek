@@ -20,7 +20,7 @@ public class Engine {
     public static void showWindow(String name) {
         frame = new JFrame(name);
         frame.add(window);
-        frame.setSize(800, 700);
+        frame.setSize(800, 500);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pixels = new Color[cols][rows];
         clear();
@@ -50,7 +50,7 @@ public class Engine {
         clear();
 
         for (PixelComponent pc : components) {
-            
+
             int x = pc.getX();
             int y = pc.getY();
             Color[][] pcp = pc.getPixels();
@@ -76,6 +76,10 @@ public class Engine {
         return components.remove(pc);
     }
 
+    public static void removeAllPixelComponents() {
+        components = new ArrayList<PixelComponent>();
+    }
+
 }
 
 class Window extends JPanel {
@@ -90,14 +94,12 @@ class Window extends JPanel {
         int hgap = (height - Engine.rows * side) / 2;
         int wgap = (width - Engine.cols * side) / 2;
 
-        // g.setColor(new Color(112, 66, 20)); //sepia
         g.setColor(Color.darkGray);
 
         g.fillRect(0, 0, width, height);
 
         for (int x = 0; x < Engine.cols; x++) {
             for (int y = 0; y < Engine.rows; y++) {
-                // System.out.println(x + " " + y + pixels[x][y]);
                 g.setColor(Engine.pixels[x][y]);
                 g.fillRect(x * side + wgap, y * side + hgap, side - Settings.getSetting("Visual Grid"),
                         side - Settings.getSetting("Visual Grid"));

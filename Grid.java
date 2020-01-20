@@ -34,7 +34,8 @@ public class Grid extends PixelComponent {
         }
 
     }
-
+    
+    @Override
     public Color[][] getPixels() {
         Color[][] pixels = new Color[width * 2][length * 2];
         for (int i = 0; i < width; i++) {

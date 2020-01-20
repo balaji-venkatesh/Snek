@@ -31,6 +31,7 @@ public class Text extends PixelComponent {
         return color;
     }
 
+    @Override
     public Color[][] getPixels() {
 
         Color[][] pixels = new Color[text.length() * 4][6];

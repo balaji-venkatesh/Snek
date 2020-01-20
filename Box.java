@@ -42,6 +42,7 @@ public class Box extends PixelComponent {
         return color;
     }
 
+    @Override
     public Color[][] getPixels() {
 
         Color[][] pixels = new Color[w][h];

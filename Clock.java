@@ -5,7 +5,7 @@ public class Clock extends Thread {
     PriorityQueue<Action> set = new PriorityQueue<Action>();
 
     private long delay;
-    private boolean running;
+    private volatile boolean running;
 
     public static void delay(long time) {
         try {
@@ -27,6 +27,7 @@ public class Clock extends Thread {
     }
 
     public void run() {
+        delay(1000);
         running = true;
         while (running) {
             PriorityQueue<Action> temp = new PriorityQueue<Action>(set);
@@ -37,9 +38,10 @@ public class Clock extends Thread {
             }
             delay(delay);
         }
+        return;
     }
 
-    public void setSpeed(long delay){
+    public void setSpeed(long delay) {
         this.delay = delay;
     }
 
