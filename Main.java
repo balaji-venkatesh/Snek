@@ -16,7 +16,7 @@ public class Main {
         Keyboard.readGameBindings(); // get game bindings from keyboard.txt
         Keyboard.writeGameBindings(); // write game bindings to keyboard.txt
 
-        Engine.showWindow("Snek"); // shows window
+        Engine.showWindow("Snek by Logan and Balaji"); // shows window
 
         startScreen(); // start main menu
     }
@@ -57,8 +57,8 @@ public class Main {
         Engine.addPixelComponent(new Text(1, 14, "<A", Color.white)); // left
         Engine.addPixelComponent(new Text(140, 14, "D>", Color.white)); // right
 
-        Engine.addPixelComponent(new Text(1, 26, "Use A&D or <&> to scroll", Color.darkGray));
-        Engine.addPixelComponent(new Text(1, 33, "Use W&S or /\\ & \\/ to change settings", Color.darkGray));
+        Engine.addPixelComponent(new Text(1, 26, "Use A and D or <and> to scroll", Color.darkGray));
+        Engine.addPixelComponent(new Text(1, 33, "Use W and S or up and down to edit", Color.darkGray));
         Engine.addPixelComponent(new Text(1, 40, "Press del to reset all settings", Color.darkGray));
         Engine.addPixelComponent(new Text(1, 47, "Press enter to continue", Color.white));
 
@@ -241,7 +241,8 @@ public class Main {
                 Engine.update();
             }
         });
-        Keyboard.updateBinding(40, "getBinding"); //
+        Keyboard.updateBinding(40, "getBinding");
+        Keyboard.updateBinding(83, "getBinding");
 
     }
 

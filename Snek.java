@@ -1,9 +1,12 @@
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Snek {
 
     ArrayList<Integer> snekX = new ArrayList<Integer>(); // coordinates
     ArrayList<Integer> snekY = new ArrayList<Integer>();
+
+    private static Random random = new Random();
 
     private int prevDirection; // used to prevent 180 degrees
     private int direction; // 1 is up, 2 is right, 3 is down, 4 is left
@@ -57,7 +60,7 @@ public class Snek {
         prevDirection = direction; // used to prevent turning backward
         if (!isPlayer) {
             if (Math.random() < (double) Settings.getSetting("Snek Turn Chance") / 100)
-                changeDirection((int) (Math.random() * 3) + 1); // enermeyo can randomy change direction
+                changeDirection(random.nextInt(4) + 1); // enermeyo can randomy change direction
         }
         if (size >= currentSize && currentSize > 0) { // if head needs to move forward, add new block in front
             add(snekX.get(0), snekY.get(0));
@@ -112,7 +115,7 @@ public class Snek {
 
     public void dealWithCollision(int x, int y, int counter) {
         if (!isPlayer && counter < 100) { // collision avoidance AI
-            changeDirection((int) (Math.random() * 4) + 1);
+            changeDirection(random.nextInt(4) + 1);
             add(x, y, counter + 1);
         } else
             dedify(); // kill the snek
@@ -125,6 +128,7 @@ public class Snek {
             Game.grid.setCell(snekX.get(i), snekY.get(i), 6);
         if (isPlayer)
             Game.end();
+            else Game.numEnermeyoSneks--;
     }
 
     public void changeDirection(int direction) {

@@ -9,7 +9,7 @@ public class Game {
     protected static int score;
     private static int bgScore;
 
-    private static int numEnermeyoSneks;
+    public static int numEnermeyoSneks;
 
     private static ArrayList<Snek> enermeyoSneks = new ArrayList<Snek>();
 
@@ -33,7 +33,20 @@ public class Game {
 
         clock = new Clock(Settings.getSetting("Tick Delay"));
 
-        scoreText = new Text(Settings.getSetting("Grid Width") * 2 + 15, 8, 10, "Score: " + score, Color.black);
+        scoreText = new Text(Settings.getSetting("Grid Width") * 2 + 15, 8, 10, "", Color.black);
+
+        Keyboard.addAction("die", new Action(100) {
+            void act() {
+                Game.clock.pause(); // stop the clock
+                Clock.delay(1000);
+
+                Engine.removeAllPixelComponents();
+                Keyboard.clear();
+
+                Main.startScreen();
+            }
+        });
+        Keyboard.updateBinding(27, "die");
 
         clock.schedule(new Action(100) {
             void act() {
@@ -52,7 +65,9 @@ public class Game {
                     bgScore -= 5;
                     numEnermeyoSneks++;
                 }
-                scoreText.setText("Score: " + score);
+                if (Settings.getSetting("Game Mode (0 coop, 1 battle)              ") == 0) {
+                    scoreText.setText("Score: " + score);
+                }
             }
         });
 
@@ -75,9 +90,16 @@ public class Game {
 
         Engine.addPixelComponent(grid);
 
-        player1Snek = new Snek(Settings.getSetting("Grid Width") * 2 / 3, Settings.getSetting("Grid Length") * 2 / 3,
-                Settings.getSetting("P1 Starting Direction"), true, Settings.getSetting("Snek Size"), 4);
-        bindToKeyboard(player1Snek, 1);
+        if (Settings.getSetting("Number of Players") > 0) {
+            player1Snek = new Snek(Settings.getSetting("Grid Width") * 2 / 3,
+                    Settings.getSetting("Grid Length") * 2 / 3, Settings.getSetting("P1 Starting Direction"), true,
+                    Settings.getSetting("Snek Size"), 4);
+            bindToKeyboard(player1Snek, 1);
+        }
+        else{
+            bgScore = 50;
+        }
+
 
         if (Settings.getSetting("Number of Players") == 2) {
             player2Snek = new Snek(Settings.getSetting("Grid Width") / 3, Settings.getSetting("Grid Length") / 3,
@@ -148,33 +170,35 @@ public class Game {
 
     public static void end() {
 
-        clock.setSpeed(30);
-
-        if (player1Snek.isDead() && (player2Snek != null && player2Snek.isDead()))
-            clock.schedule(new ShowEnd());
-
-        if (!player1Snek.isDead())
-            player1Snek.dedify();
-        if (player2Snek != null && !player2Snek.isDead())
-            player2Snek.dedify();
-
-        /*
-         * for (Snek s : enermeyoSneks) { s.dedify(); }
-         */
+        if (Settings.getSetting("Game Mode (0 coop, 1 battle)              ") == 0) {
+            if (player1Snek.isDead() && (player2Snek != null && player2Snek.isDead())) {
+                clock.schedule(new ShowCoopEnd());
+                clock.setSpeed(30);
+            }
+            if (!player1Snek.isDead())
+                player1Snek.dedify();
+            if (player2Snek != null && !player2Snek.isDead())
+                player2Snek.dedify();
+        } else {
+            if (!(player1Snek.isDead() && (player2Snek != null && player2Snek.isDead())))
+                clock.schedule(new ShowBattleEnd());
+            // clock.setSpeed(30);
+        }
 
     }
 
 }
 
-class ShowEnd extends Action {
+class ShowCoopEnd extends Action {
 
-    ShowEnd() {
+    ShowCoopEnd() {
         super(10000);
         Game.clock.deSchedule(this);
     }
 
     void act() {
         if (Game.player1Snek.gone() && (Game.player2Snek == null || Game.player2Snek.gone())) {
+
             Game.clock.pause(); // stop the clock
             Clock.delay(1000);
 
@@ -183,25 +207,69 @@ class ShowEnd extends Action {
 
             Engine.setSize(34, 80);
 
-            Text doneText = new Text(3, 3, "Game Over!", Color.pink);
-            Text newScoreText = new Text(3, 11, "Your Score Was: " + Game.score, Color.white);
-            Text continueText = new Text(3, 19, "Press any key to", Color.lightGray);
-            Text continueText2 = new Text(3, 26, "return to menu.", Color.lightGray);
-
-            Engine.addPixelComponent(doneText);
-            Engine.addPixelComponent(newScoreText);
-            Engine.addPixelComponent(continueText);
-            Engine.addPixelComponent(continueText2);
+            Engine.addPixelComponent(new Text(3, 3, "Game Over!", Color.pink));
+            Engine.addPixelComponent(new Text(3, 11, "Your Score Was: " + Game.score, Color.white));
+            Engine.addPixelComponent(new Text(3, 19, "Press any key to", Color.lightGray));
+            Engine.addPixelComponent(new Text(3, 26, "return to menu.", Color.lightGray));
 
             Engine.update();
+
+            Keyboard.clear();
 
             Keyboard.waitForAnyKey();
 
             Engine.removeAllPixelComponents();
 
-            Main.settingsScreen();
+            Main.startScreen();
 
         }
+    }
+
+}
+
+class ShowBattleEnd extends Action {
+
+    ShowBattleEnd() {
+        super(10000);
+        Game.clock.deSchedule(this);
+    }
+
+    void act() {
+        if (Game.player1Snek.gone() || (Game.player2Snek != null && Game.player2Snek.gone())) {
+            Game.clock.pause(); // stop the clock
+            Clock.delay(1000);
+
+            // remove everything
+            Engine.removeAllPixelComponents();
+
+            Engine.setSize(34, 80);
+
+            if (Game.player1Snek.isDead() && (Game.player2Snek == null || !Game.player2Snek.isDead())) {
+                Engine.addPixelComponent(new Text(3, 3, "Green snek bad ", Color.blue));
+                Engine.addPixelComponent(new Text(3, 11, "blue snek dab", Color.blue));
+            } else if (Game.player1Snek.isDead() && Game.player2Snek.isDead()) {
+                Engine.addPixelComponent(new Text(3, 3, "Blue Snek bad ", Color.yellow));
+                Engine.addPixelComponent(new Text(3, 11, "Green Snek also bad", Color.yellow));
+            } else {
+                Engine.addPixelComponent(new Text(3, 3, "Blue Snek bad", Color.green));
+                Engine.addPixelComponent(new Text(3, 11, "green snek dab", Color.green));
+            }
+
+            Engine.addPixelComponent(new Text(3, 19, "Press any key to", Color.lightGray));
+            Engine.addPixelComponent(new Text(3, 26, "return to menu.", Color.lightGray));
+
+            Engine.update();
+
+            Keyboard.clear();
+
+            Keyboard.waitForAnyKey();
+
+            Engine.removeAllPixelComponents();
+
+            Main.startScreen();
+
+        }
+
     }
 
 }

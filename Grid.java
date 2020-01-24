@@ -8,7 +8,7 @@ public class Grid extends PixelComponent {
     Color color[] = new Color[] { Color.white, // floor
             Color.red, // apple
             Color.black, // wall
-            Color.magenta, // enermy snakes
+            Color.orange, // enermy snakes
             Color.green, // player snakes from here on
             Color.blue, 
             Color.lightGray};
